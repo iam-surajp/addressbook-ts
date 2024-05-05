@@ -59,6 +59,10 @@ var Contact = /** @class */ (function () {
         this.phoneNumber = phoneNumber;
         this.email = email;
     };
+    // Override equals method to check for duplicate contacts
+    Contact.prototype.equals = function (other) {
+        return this.firstName === other.firstName && this.lastName === other.lastName;
+    };
     return Contact;
 }());
 var AddressBook = /** @class */ (function () {
@@ -66,7 +70,17 @@ var AddressBook = /** @class */ (function () {
         this.contacts = [];
     }
     AddressBook.prototype.addContact = function (contact) {
-        this.contacts.push(contact);
+        // Check for duplicate contacts before adding
+        if (this.findDuplicate(contact)) {
+            console.log("Duplicate entry. This contact already exists in the address book.");
+        }
+        else {
+            this.contacts.push(contact);
+            console.log("Contact added successfully!");
+        }
+    };
+    AddressBook.prototype.findDuplicate = function (contact) {
+        return this.contacts.some(function (existingContact) { return existingContact.equals(contact); });
     };
     AddressBook.prototype.displayContacts = function () {
         console.log("Contacts in Address Book:");
@@ -113,6 +127,8 @@ var AddressBook = /** @class */ (function () {
 var AddressBookManager = /** @class */ (function () {
     function AddressBookManager() {
         this.addressBooks = new Map();
+        this.cityPersonMap = {};
+        this.statePersonMap = {};
     }
     AddressBookManager.prototype.addAddressBook = function (name) {
         if (!this.addressBooks.has(name)) {
@@ -131,6 +147,40 @@ var AddressBookManager = /** @class */ (function () {
         this.addressBooks.forEach(function (_, name) {
             console.log(name);
         });
+    };
+    AddressBookManager.prototype.searchPersonByCityOrState = function (cityOrState) {
+        var searchResults = [];
+        this.addressBooks.forEach(function (addressBook) {
+            for (var _i = 0, _a = addressBook.contacts; _i < _a.length; _i++) {
+                var contact = _a[_i];
+                if (contact.city === cityOrState || contact.state === cityOrState) {
+                    searchResults.push(contact);
+                }
+            }
+        });
+        return searchResults;
+    };
+    AddressBookManager.prototype.addContact = function (contact) {
+        // Add contact to address book
+        this.addressBooks.forEach(function (addressBook) {
+            addressBook.contacts.push(contact);
+        });
+        // Update city-person map
+        if (!this.cityPersonMap[contact.city]) {
+            this.cityPersonMap[contact.city] = [];
+        }
+        this.cityPersonMap[contact.city].push(contact);
+        // Update state-person map
+        if (!this.statePersonMap[contact.state]) {
+            this.statePersonMap[contact.state] = [];
+        }
+        this.statePersonMap[contact.state].push(contact);
+    };
+    AddressBookManager.prototype.viewPersonsByCity = function (city) {
+        return this.cityPersonMap[city] || [];
+    };
+    AddressBookManager.prototype.viewPersonsByState = function (state) {
+        return this.statePersonMap[state] || [];
     };
     return AddressBookManager;
 }());
@@ -270,9 +320,76 @@ var AddressBookMain = /** @class */ (function () {
             });
         });
     };
+    AddressBookMain.prototype.searchPersonByCityOrState = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var cityOrState, searchResults;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getInput("Enter the city or state to search for: ")];
+                    case 1:
+                        cityOrState = _a.sent();
+                        searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
+                        if (searchResults.length > 0) {
+                            console.log("Search Results:");
+                            searchResults.forEach(function (contact, index) {
+                                console.log("".concat(index + 1, ". ").concat(contact.getFullName(), " - ").concat(contact.city, ", ").concat(contact.state));
+                            });
+                        }
+                        else {
+                            console.log("No matching contacts found.");
+                        }
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AddressBookMain.prototype.viewPersonsByCityOrState = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var option, city, persons, state, persons;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getInput("Enter 1 to view persons by city, 2 to view persons by state: ")];
+                    case 1:
+                        option = _a.sent();
+                        if (!(option === '1')) return [3 /*break*/, 3];
+                        return [4 /*yield*/, this.getInput("Enter the city: ")];
+                    case 2:
+                        city = _a.sent();
+                        persons = this.addressBookManager.viewPersonsByCity(city);
+                        this.displayPersons(persons);
+                        return [3 /*break*/, 6];
+                    case 3:
+                        if (!(option === '2')) return [3 /*break*/, 5];
+                        return [4 /*yield*/, this.getInput("Enter the state: ")];
+                    case 4:
+                        state = _a.sent();
+                        persons = this.addressBookManager.viewPersonsByState(state);
+                        this.displayPersons(persons);
+                        return [3 /*break*/, 6];
+                    case 5:
+                        console.log("Invalid option.");
+                        _a.label = 6;
+                    case 6: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AddressBookMain.prototype.displayPersons = function (persons) {
+        if (persons.length > 0) {
+            console.log("Persons:");
+            persons.forEach(function (contact, index) {
+                console.log("".concat(index + 1, ". ").concat(contact.getFullName(), " - ").concat(contact.city, ", ").concat(contact.state));
+            });
+        }
+        else {
+            console.log("No matching persons found.");
+        }
+    };
     return AddressBookMain;
 }());
 var addressBookMain = new AddressBookMain();
 // addressBookMain.addNewAddressBook();
 addressBookMain.addNewContact();
 // addressBookMain.displayAllAddressBooks();
+// addressBookMain.searchPersonByCityOrState();
+addressBookMain.viewPersonsByCityOrState();

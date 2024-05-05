@@ -33,6 +33,10 @@ class Contact {
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
+    // Override equals method to check for duplicate contacts
+    equals(other: Contact): boolean {
+        return this.firstName === other.firstName && this.lastName === other.lastName;
+    }
 }
 
 class AddressBook {
@@ -43,7 +47,17 @@ class AddressBook {
     }
 
     addContact(contact: Contact): void {
-        this.contacts.push(contact);
+        // Check for duplicate contacts before adding
+        if (this.findDuplicate(contact)) {
+            console.log("Duplicate entry. This contact already exists in the address book.");
+        } else {
+            this.contacts.push(contact);
+            console.log("Contact added successfully!");
+        }
+    }
+
+    private findDuplicate(contact: Contact): boolean {
+        return this.contacts.some(existingContact => existingContact.equals(contact));
     }
 
     displayContacts(): void {
@@ -91,9 +105,13 @@ class AddressBook {
 
 class AddressBookManager {
     addressBooks: Map<string, AddressBook>;
+    cityPersonMap: { [city: string]: Contact[] };
+    statePersonMap: { [state: string]: Contact[] };
 
     constructor() {
         this.addressBooks = new Map();
+        this.cityPersonMap = {};
+        this.statePersonMap = {};
     }
 
     addAddressBook(name: string): void {
@@ -114,6 +132,40 @@ class AddressBookManager {
         this.addressBooks.forEach((_, name) => {
             console.log(name);
         });
+    }
+    searchPersonByCityOrState(cityOrState: string): Contact[] {
+        const searchResults: Contact[] = [];
+        this.addressBooks.forEach((addressBook) => {
+            for (const contact of addressBook.contacts) {
+                if (contact.city === cityOrState || contact.state === cityOrState) {
+                    searchResults.push(contact);
+                }
+            }
+        });
+        return searchResults;
+    }
+    addContact(contact: Contact): void {
+        // Add contact to address book
+        this.addressBooks.forEach((addressBook) => {
+            addressBook.contacts.push(contact);
+        });
+        // Update city-person map
+        if (!this.cityPersonMap[contact.city]) {
+            this.cityPersonMap[contact.city] = [];
+        }
+        this.cityPersonMap[contact.city].push(contact);
+        // Update state-person map
+        if (!this.statePersonMap[contact.state]) {
+            this.statePersonMap[contact.state] = [];
+        }
+        this.statePersonMap[contact.state].push(contact);
+    }
+
+    viewPersonsByCity(city: string): Contact[] {
+        return this.cityPersonMap[city] || [];
+    }
+    viewPersonsByState(state: string): Contact[] {
+        return this.statePersonMap[state] || [];
     }
 }
 
@@ -190,9 +242,49 @@ class AddressBookMain {
             });
         });
     }
+    async searchPersonByCityOrState(): Promise<void> {
+        const cityOrState = await this.getInput("Enter the city or state to search for: ");
+        const searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
+        if (searchResults.length > 0) {
+            console.log("Search Results:");
+            searchResults.forEach((contact, index) => {
+                console.log(`${index + 1}. ${contact.getFullName()} - ${contact.city}, ${contact.state}`);
+            });
+        } else {
+            console.log("No matching contacts found.");
+        }
+    }
+   
+    async viewPersonsByCityOrState(): Promise<void> {
+        const option = await this.getInput("Enter 1 to view persons by city, 2 to view persons by state: ");
+        if (option === '1') {
+            const city = await this.getInput("Enter the city: ");
+            const persons = this.addressBookManager.viewPersonsByCity(city);
+            this.displayPersons(persons);
+        } else if (option === '2') {
+            const state = await this.getInput("Enter the state: ");
+            const persons = this.addressBookManager.viewPersonsByState(state);
+            this.displayPersons(persons);
+        } else {
+            console.log("Invalid option.");
+        }
+    }
+
+    displayPersons(persons: Contact[]): void {
+        if (persons.length > 0) {
+            console.log("Persons:");
+            persons.forEach((contact, index) => {
+                console.log(`${index + 1}. ${contact.getFullName()} - ${contact.city}, ${contact.state}`);
+            });
+        } else {
+            console.log("No matching persons found.");
+        }
+    }
 }
 
 const addressBookMain = new AddressBookMain();
 // addressBookMain.addNewAddressBook();
 addressBookMain.addNewContact();
 // addressBookMain.displayAllAddressBooks();
+// addressBookMain.searchPersonByCityOrState();
+addressBookMain.viewPersonsByCityOrState();
