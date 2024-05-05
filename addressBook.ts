@@ -33,9 +33,14 @@ class Contact {
         this.phoneNumber = phoneNumber;
         this.email = email;
     }
+    
     // Override equals method to check for duplicate contacts
     equals(other: Contact): boolean {
         return this.firstName === other.firstName && this.lastName === other.lastName;
+    }
+
+    toString(): string {
+        return `${this.getFullName()} - ${this.address}, ${this.city}, ${this.state}, ${this.zip}, ${this.phoneNumber}, ${this.email}`;
     }
 }
 
@@ -49,11 +54,12 @@ class AddressBook {
     addContact(contact: Contact): void {
         // Check for duplicate contacts before adding
         if (this.findDuplicate(contact)) {
-            console.log("Duplicate entry. This contact already exists in the address book.");
+            console.log("Duplicate entry. This contact already exists in address book.");
         } else {
             this.contacts.push(contact);
-            console.log("Contact added successfully!");
+            console.log("New contact added successfully!");
         }
+        console.log("\n");
     }
 
     private findDuplicate(contact: Contact): boolean {
@@ -65,6 +71,7 @@ class AddressBook {
         this.contacts.forEach((contact, index) => {
             console.log(`${index + 1}. ${contact.getFullName()}`);
         });
+        console.log("\n");
     }
 
     findContactByName(firstName: string, lastName: string): Contact | undefined {
@@ -86,6 +93,7 @@ class AddressBook {
         } else {
             console.log("Contact not found.");
         }
+        console.log("\n");
     }
 
     deleteContactByName(firstName: string, lastName: string): void {
@@ -96,10 +104,37 @@ class AddressBook {
         } else {
             console.log("Contact not found.");
         }
+        console.log("\n");
     }
+
     private getInput(question: string): string {
         const readline = require('readline-sync');
         return readline.question(question);
+    }
+
+    sortContactsByName(): void {
+        this.contacts.sort((a, b) => {
+            const nameA = a.getFullName().toLowerCase();
+            const nameB = b.getFullName().toLowerCase();
+            if (nameA < nameB) return -1;
+            if (nameA > nameB) return 1;
+            return 0;
+        });
+    }
+
+    // Sort contacts by city
+    sortContactsByCity(): void {
+        this.contacts.sort((a, b) => a.city.localeCompare(b.city));
+    }
+
+    // Sort contacts by state
+    sortContactsByState(): void {
+        this.contacts.sort((a, b) => a.state.localeCompare(b.state));
+    }
+
+    // Sort contacts by zip
+    sortContactsByZip(): void {
+        this.contacts.sort((a, b) => a.zip.localeCompare(b.zip));
     }
 }
 
@@ -121,6 +156,7 @@ class AddressBookManager {
         } else {
             console.log(`Address book with name '${name}' already exists.`);
         }
+        console.log("\n");
     }
 
     getAddressBook(name: string): AddressBook | undefined {
@@ -132,7 +168,9 @@ class AddressBookManager {
         this.addressBooks.forEach((_, name) => {
             console.log(name);
         });
+        console.log("\n");
     }
+
     searchPersonByCityOrState(cityOrState: string): Contact[] {
         const searchResults: Contact[] = [];
         this.addressBooks.forEach((addressBook) => {
@@ -144,6 +182,7 @@ class AddressBookManager {
         });
         return searchResults;
     }
+
     addContact(contact: Contact): void {
         // Add contact to address book
         this.addressBooks.forEach((addressBook) => {
@@ -164,6 +203,7 @@ class AddressBookManager {
     viewPersonsByCity(city: string): Contact[] {
         return this.cityPersonMap[city] || [];
     }
+
     viewPersonsByState(state: string): Contact[] {
         return this.statePersonMap[state] || [];
     }
@@ -186,12 +226,36 @@ class AddressBookMain {
         this.addressBookManager = new AddressBookManager();
     }
 
-    async addNewAddressBook(): Promise<void> {
+    async run(){
+        // Main entry point to start interacting with the address book system
+        // Perform operations like adding new address books, adding contacts, editing contacts, etc.
+        console.log("Welcome to Addressbook program\n");
+        // await this.addNewAddressBook();
+        await this.addAddressBooks();
+        // await this.addNewContact();
+        await this.addMoreContacts();
+        this.displayAllAddressBooks();
+        await this.searchPersonByCityOrState();
+    }
+
+    async addNewAddressBook(){
         const name = await this.getInput("Enter the name for the new address book: ");
         this.addressBookManager.addAddressBook(name);
     }
 
-    async addNewContact(): Promise<void> {
+    async addAddressBooks(){
+        do{
+            await this.addNewAddressBook();
+            const addBook = await this.getInput("Do you want to add more address books? (yes,no): ");
+            if (addBook.toLowerCase()!=='yes'){
+                break;
+            }
+        } while (true);
+        console.log("\n");
+    }
+    
+
+    async addNewContact(){
         const name = await this.getInput("Enter the name of the address book to add a contact to: ");
         const addressBook = this.addressBookManager.getAddressBook(name);
         if (addressBook) {
@@ -205,41 +269,37 @@ class AddressBookMain {
             const email = await this.getInput("Enter email: ");
             const newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
             addressBook.addContact(newContact);
-            console.log("New contact added successfully!");
+            // console.log("New contact added successfully!");
         } else {
             console.log(`Address book with name '${name}' does not exist.`);
         }
     }
 
-    async editContact(): Promise<void> {
-        const name = await this.getInput("Enter the name of the address book to edit a contact in: ");
-        const addressBook = this.addressBookManager.getAddressBook(name);
-        if (addressBook) {
-            const firstName = await this.getInput("Enter first name of contact to edit: ");
-            const lastName = await this.getInput("Enter last name of contact to edit: ");
-            addressBook.editContactByName(firstName, lastName);
-        } else {
-            console.log(`Address book with name '${name}' does not exist.`);
+    async addMoreContacts(){
+        do{
+        await this.addNewContact();
+        const response = await this.getInput("Do you want to add more contacts? (yes,no): ");
+        if (response !== 'yes'){
+            break;
         }
+        }while(true);
+        console.log("\n"); 
     }
 
-    async deleteContact(): Promise<void> {
-        const name = await this.getInput("Enter the name of the address book to delete a contact from: ");
-        const addressBook = this.addressBookManager.getAddressBook(name);
-        if (addressBook) {
-            const firstName = await this.getInput("Enter first name of contact to delete: ");
-            const lastName = await this.getInput("Enter last name of contact to delete: ");
-            addressBook.deleteContactByName(firstName, lastName);
+    async searchPersonByCityOrState(){
+        const cityOrState = await this.getInput("Enter the city or state to search for: ");
+        const searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
+        if (searchResults.length > 0) {
+            searchResults.forEach((contact, index) => {
+                console.log(`${index + 1}. ${contact.getFullName()} - ${contact.city}, ${contact.state}`);
+            });
         } else {
-            console.log(`Address book with name '${name}' does not exist.`);
+            console.log("No matching contacts found.");
         }
+        console.log("\n");
     }
 
-    displayAllAddressBooks(): void {
-        this.addressBookManager.displayAllAddressBooks();
-    }
-
-    private async getInput(question: string): Promise<string> {
+    async getInput(question: string): Promise<string> {
         const rl = readline.createInterface({
             input: process.stdin,
             output: process.stdout
@@ -252,61 +312,11 @@ class AddressBookMain {
             });
         });
     }
-    async searchPersonByCityOrState(): Promise<void> {
-        const cityOrState = await this.getInput("Enter the city or state to search for: ");
-        const searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
-        if (searchResults.length > 0) {
-            console.log("Search Results:");
-            searchResults.forEach((contact, index) => {
-                console.log(`${index + 1}. ${contact.getFullName()} - ${contact.city}, ${contact.state}`);
-            });
-        } else {
-            console.log("No matching contacts found.");
-        }
-    }
-   
-    async viewPersonsByCityOrState(): Promise<void> {
-        const option = await this.getInput("Enter 1 to view persons by city, 2 to view persons by state: ");
-        if (option === '1') {
-            const city = await this.getInput("Enter the city: ");
-            const persons = this.addressBookManager.viewPersonsByCity(city);
-            this.displayPersons(persons);
-        } else if (option === '2') {
-            const state = await this.getInput("Enter the state: ");
-            const persons = this.addressBookManager.viewPersonsByState(state);
-            this.displayPersons(persons);
-        } else {
-            console.log("Invalid option.");
-        }
-    }
 
-    displayPersons(persons: Contact[]): void {
-        if (persons.length > 0) {
-            console.log("Persons:");
-            persons.forEach((contact, index) => {
-                console.log(`${index + 1}. ${contact.getFullName()} - ${contact.city}, ${contact.state}`);
-            });
-        } else {
-            console.log("No matching persons found.");
-        }
-    }
-
-    async viewContactCounts(){
-        const city = await this.getInput("Enter the city to get contact count: ");
-        const state = await this.getInput("Enter the state to get contact count: ");
-        
-        const cityCount = this.addressBookManager.getContactCountByCity(city);
-        const stateCount = this.addressBookManager.getContactCountByState(state);
-
-        console.log(`Number of contacts in ${city}: ${cityCount}`);
-        console.log(`Number of contacts in ${state}: ${stateCount}`);
+    displayAllAddressBooks(): void {
+        this.addressBookManager.displayAllAddressBooks();
     }
 }
 
 const addressBookMain = new AddressBookMain();
-// addressBookMain.addNewAddressBook();
-// addressBookMain.addNewContact();
-// addressBookMain.displayAllAddressBooks();
-// addressBookMain.searchPersonByCityOrState();
-// addressBookMain.viewPersonsByCityOrState();
-// addressBookMain.viewContactCounts();
+addressBookMain.run();

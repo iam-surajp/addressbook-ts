@@ -63,6 +63,9 @@ var Contact = /** @class */ (function () {
     Contact.prototype.equals = function (other) {
         return this.firstName === other.firstName && this.lastName === other.lastName;
     };
+    Contact.prototype.toString = function () {
+        return "".concat(this.getFullName(), " - ").concat(this.address, ", ").concat(this.city, ", ").concat(this.state, ", ").concat(this.zip, ", ").concat(this.phoneNumber, ", ").concat(this.email);
+    };
     return Contact;
 }());
 var AddressBook = /** @class */ (function () {
@@ -72,12 +75,13 @@ var AddressBook = /** @class */ (function () {
     AddressBook.prototype.addContact = function (contact) {
         // Check for duplicate contacts before adding
         if (this.findDuplicate(contact)) {
-            console.log("Duplicate entry. This contact already exists in the address book.");
+            console.log("Duplicate entry. This contact already exists in address book.");
         }
         else {
             this.contacts.push(contact);
-            console.log("Contact added successfully!");
+            console.log("New contact added successfully!");
         }
+        console.log("\n");
     };
     AddressBook.prototype.findDuplicate = function (contact) {
         return this.contacts.some(function (existingContact) { return existingContact.equals(contact); });
@@ -87,6 +91,7 @@ var AddressBook = /** @class */ (function () {
         this.contacts.forEach(function (contact, index) {
             console.log("".concat(index + 1, ". ").concat(contact.getFullName()));
         });
+        console.log("\n");
     };
     AddressBook.prototype.findContactByName = function (firstName, lastName) {
         return this.contacts.find(function (contact) { return contact.firstName === firstName && contact.lastName === lastName; });
@@ -107,6 +112,7 @@ var AddressBook = /** @class */ (function () {
         else {
             console.log("Contact not found.");
         }
+        console.log("\n");
     };
     AddressBook.prototype.deleteContactByName = function (firstName, lastName) {
         var index = this.contacts.findIndex(function (contact) { return contact.firstName === firstName && contact.lastName === lastName; });
@@ -117,10 +123,34 @@ var AddressBook = /** @class */ (function () {
         else {
             console.log("Contact not found.");
         }
+        console.log("\n");
     };
     AddressBook.prototype.getInput = function (question) {
         var readline = require('readline-sync');
         return readline.question(question);
+    };
+    AddressBook.prototype.sortContactsByName = function () {
+        this.contacts.sort(function (a, b) {
+            var nameA = a.getFullName().toLowerCase();
+            var nameB = b.getFullName().toLowerCase();
+            if (nameA < nameB)
+                return -1;
+            if (nameA > nameB)
+                return 1;
+            return 0;
+        });
+    };
+    // Sort contacts by city
+    AddressBook.prototype.sortContactsByCity = function () {
+        this.contacts.sort(function (a, b) { return a.city.localeCompare(b.city); });
+    };
+    // Sort contacts by state
+    AddressBook.prototype.sortContactsByState = function () {
+        this.contacts.sort(function (a, b) { return a.state.localeCompare(b.state); });
+    };
+    // Sort contacts by zip
+    AddressBook.prototype.sortContactsByZip = function () {
+        this.contacts.sort(function (a, b) { return a.zip.localeCompare(b.zip); });
     };
     return AddressBook;
 }());
@@ -138,6 +168,7 @@ var AddressBookManager = /** @class */ (function () {
         else {
             console.log("Address book with name '".concat(name, "' already exists."));
         }
+        console.log("\n");
     };
     AddressBookManager.prototype.getAddressBook = function (name) {
         return this.addressBooks.get(name);
@@ -147,6 +178,7 @@ var AddressBookManager = /** @class */ (function () {
         this.addressBooks.forEach(function (_, name) {
             console.log(name);
         });
+        console.log("\n");
     };
     AddressBookManager.prototype.searchPersonByCityOrState = function (cityOrState) {
         var searchResults = [];
@@ -196,6 +228,33 @@ var AddressBookMain = /** @class */ (function () {
     function AddressBookMain() {
         this.addressBookManager = new AddressBookManager();
     }
+    AddressBookMain.prototype.run = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        // Main entry point to start interacting with the address book system
+                        // Perform operations like adding new address books, adding contacts, editing contacts, etc.
+                        console.log("Welcome to Addressbook program\n");
+                        // await this.addNewAddressBook();
+                        return [4 /*yield*/, this.addAddressBooks()];
+                    case 1:
+                        // await this.addNewAddressBook();
+                        _a.sent();
+                        // await this.addNewContact();
+                        return [4 /*yield*/, this.addMoreContacts()];
+                    case 2:
+                        // await this.addNewContact();
+                        _a.sent();
+                        this.displayAllAddressBooks();
+                        return [4 /*yield*/, this.searchPersonByCityOrState()];
+                    case 3:
+                        _a.sent();
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     AddressBookMain.prototype.addNewAddressBook = function () {
         return __awaiter(this, void 0, void 0, function () {
             var name;
@@ -205,6 +264,31 @@ var AddressBookMain = /** @class */ (function () {
                     case 1:
                         name = _a.sent();
                         this.addressBookManager.addAddressBook(name);
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    AddressBookMain.prototype.addAddressBooks = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var addBook;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.addNewAddressBook()];
+                    case 1:
+                        _a.sent();
+                        return [4 /*yield*/, this.getInput("Do you want to add more address books? (yes,no): ")];
+                    case 2:
+                        addBook = _a.sent();
+                        if (addBook.toLowerCase() !== 'yes') {
+                            return [3 /*break*/, 4];
+                        }
+                        _a.label = 3;
+                    case 3:
+                        if (true) return [3 /*break*/, 0];
+                        _a.label = 4;
+                    case 4:
+                        console.log("\n");
                         return [2 /*return*/];
                 }
             });
@@ -246,7 +330,6 @@ var AddressBookMain = /** @class */ (function () {
                         email = _a.sent();
                         newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
                         addressBook.addContact(newContact);
-                        console.log("New contact added successfully!");
                         return [3 /*break*/, 11];
                     case 10:
                         console.log("Address book with name '".concat(name, "' does not exist."));
@@ -256,60 +339,53 @@ var AddressBookMain = /** @class */ (function () {
             });
         });
     };
-    AddressBookMain.prototype.editContact = function () {
+    AddressBookMain.prototype.addMoreContacts = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var name, addressBook, firstName, lastName;
+            var response;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter the name of the address book to edit a contact in: ")];
+                    case 0: return [4 /*yield*/, this.addNewContact()];
                     case 1:
-                        name = _a.sent();
-                        addressBook = this.addressBookManager.getAddressBook(name);
-                        if (!addressBook) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.getInput("Enter first name of contact to edit: ")];
+                        _a.sent();
+                        return [4 /*yield*/, this.getInput("Do you want to add more contacts? (yes,no): ")];
                     case 2:
-                        firstName = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter last name of contact to edit: ")];
+                        response = _a.sent();
+                        if (response !== 'yes') {
+                            return [3 /*break*/, 4];
+                        }
+                        _a.label = 3;
                     case 3:
-                        lastName = _a.sent();
-                        addressBook.editContactByName(firstName, lastName);
-                        return [3 /*break*/, 5];
+                        if (true) return [3 /*break*/, 0];
+                        _a.label = 4;
                     case 4:
-                        console.log("Address book with name '".concat(name, "' does not exist."));
-                        _a.label = 5;
-                    case 5: return [2 /*return*/];
+                        console.log("\n");
+                        return [2 /*return*/];
                 }
             });
         });
     };
-    AddressBookMain.prototype.deleteContact = function () {
+    AddressBookMain.prototype.searchPersonByCityOrState = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var name, addressBook, firstName, lastName;
+            var cityOrState, searchResults;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter the name of the address book to delete a contact from: ")];
+                    case 0: return [4 /*yield*/, this.getInput("Enter the city or state to search for: ")];
                     case 1:
-                        name = _a.sent();
-                        addressBook = this.addressBookManager.getAddressBook(name);
-                        if (!addressBook) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.getInput("Enter first name of contact to delete: ")];
-                    case 2:
-                        firstName = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter last name of contact to delete: ")];
-                    case 3:
-                        lastName = _a.sent();
-                        addressBook.deleteContactByName(firstName, lastName);
-                        return [3 /*break*/, 5];
-                    case 4:
-                        console.log("Address book with name '".concat(name, "' does not exist."));
-                        _a.label = 5;
-                    case 5: return [2 /*return*/];
+                        cityOrState = _a.sent();
+                        searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
+                        if (searchResults.length > 0) {
+                            searchResults.forEach(function (contact, index) {
+                                console.log("".concat(index + 1, ". ").concat(contact.getFullName(), " - ").concat(contact.city, ", ").concat(contact.state));
+                            });
+                        }
+                        else {
+                            console.log("No matching contacts found.");
+                        }
+                        console.log("\n");
+                        return [2 /*return*/];
                 }
             });
         });
-    };
-    AddressBookMain.prototype.displayAllAddressBooks = function () {
-        this.addressBookManager.displayAllAddressBooks();
     };
     AddressBookMain.prototype.getInput = function (question) {
         return __awaiter(this, void 0, void 0, function () {
@@ -328,97 +404,10 @@ var AddressBookMain = /** @class */ (function () {
             });
         });
     };
-    AddressBookMain.prototype.searchPersonByCityOrState = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var cityOrState, searchResults;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter the city or state to search for: ")];
-                    case 1:
-                        cityOrState = _a.sent();
-                        searchResults = this.addressBookManager.searchPersonByCityOrState(cityOrState);
-                        if (searchResults.length > 0) {
-                            console.log("Search Results:");
-                            searchResults.forEach(function (contact, index) {
-                                console.log("".concat(index + 1, ". ").concat(contact.getFullName(), " - ").concat(contact.city, ", ").concat(contact.state));
-                            });
-                        }
-                        else {
-                            console.log("No matching contacts found.");
-                        }
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    AddressBookMain.prototype.viewPersonsByCityOrState = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var option, city, persons, state, persons;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter 1 to view persons by city, 2 to view persons by state: ")];
-                    case 1:
-                        option = _a.sent();
-                        if (!(option === '1')) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.getInput("Enter the city: ")];
-                    case 2:
-                        city = _a.sent();
-                        persons = this.addressBookManager.viewPersonsByCity(city);
-                        this.displayPersons(persons);
-                        return [3 /*break*/, 6];
-                    case 3:
-                        if (!(option === '2')) return [3 /*break*/, 5];
-                        return [4 /*yield*/, this.getInput("Enter the state: ")];
-                    case 4:
-                        state = _a.sent();
-                        persons = this.addressBookManager.viewPersonsByState(state);
-                        this.displayPersons(persons);
-                        return [3 /*break*/, 6];
-                    case 5:
-                        console.log("Invalid option.");
-                        _a.label = 6;
-                    case 6: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    AddressBookMain.prototype.displayPersons = function (persons) {
-        if (persons.length > 0) {
-            console.log("Persons:");
-            persons.forEach(function (contact, index) {
-                console.log("".concat(index + 1, ". ").concat(contact.getFullName(), " - ").concat(contact.city, ", ").concat(contact.state));
-            });
-        }
-        else {
-            console.log("No matching persons found.");
-        }
-    };
-    AddressBookMain.prototype.viewContactCounts = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var city, state, cityCount, stateCount;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter the city to get contact count: ")];
-                    case 1:
-                        city = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter the state to get contact count: ")];
-                    case 2:
-                        state = _a.sent();
-                        cityCount = this.addressBookManager.getContactCountByCity(city);
-                        stateCount = this.addressBookManager.getContactCountByState(state);
-                        console.log("Number of contacts in ".concat(city, ": ").concat(cityCount));
-                        console.log("Number of contacts in ".concat(state, ": ").concat(stateCount));
-                        return [2 /*return*/];
-                }
-            });
-        });
+    AddressBookMain.prototype.displayAllAddressBooks = function () {
+        this.addressBookManager.displayAllAddressBooks();
     };
     return AddressBookMain;
 }());
 var addressBookMain = new AddressBookMain();
-// addressBookMain.addNewAddressBook();
-// addressBookMain.addNewContact();
-// addressBookMain.displayAllAddressBooks();
-// addressBookMain.searchPersonByCityOrState();
-// addressBookMain.viewPersonsByCityOrState();
-addressBookMain.viewContactCounts();
+addressBookMain.run();
