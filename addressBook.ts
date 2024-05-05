@@ -167,6 +167,16 @@ class AddressBookManager {
     viewPersonsByState(state: string): Contact[] {
         return this.statePersonMap[state] || [];
     }
+
+    getContactCountByCity(city: string): number {
+        const persons = this.cityPersonMap[city] || [];
+        return persons.length;
+    }
+
+    getContactCountByState(state: string): number {
+        const persons = this.statePersonMap[state] || [];
+        return persons.length;
+    }
 }
 
 class AddressBookMain {
@@ -280,11 +290,23 @@ class AddressBookMain {
             console.log("No matching persons found.");
         }
     }
+
+    async viewContactCounts(){
+        const city = await this.getInput("Enter the city to get contact count: ");
+        const state = await this.getInput("Enter the state to get contact count: ");
+        
+        const cityCount = this.addressBookManager.getContactCountByCity(city);
+        const stateCount = this.addressBookManager.getContactCountByState(state);
+
+        console.log(`Number of contacts in ${city}: ${cityCount}`);
+        console.log(`Number of contacts in ${state}: ${stateCount}`);
+    }
 }
 
 const addressBookMain = new AddressBookMain();
 // addressBookMain.addNewAddressBook();
-addressBookMain.addNewContact();
+// addressBookMain.addNewContact();
 // addressBookMain.displayAllAddressBooks();
 // addressBookMain.searchPersonByCityOrState();
-addressBookMain.viewPersonsByCityOrState();
+// addressBookMain.viewPersonsByCityOrState();
+// addressBookMain.viewContactCounts();

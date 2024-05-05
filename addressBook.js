@@ -182,6 +182,14 @@ var AddressBookManager = /** @class */ (function () {
     AddressBookManager.prototype.viewPersonsByState = function (state) {
         return this.statePersonMap[state] || [];
     };
+    AddressBookManager.prototype.getContactCountByCity = function (city) {
+        var persons = this.cityPersonMap[city] || [];
+        return persons.length;
+    };
+    AddressBookManager.prototype.getContactCountByState = function (state) {
+        var persons = this.statePersonMap[state] || [];
+        return persons.length;
+    };
     return AddressBookManager;
 }());
 var AddressBookMain = /** @class */ (function () {
@@ -385,11 +393,32 @@ var AddressBookMain = /** @class */ (function () {
             console.log("No matching persons found.");
         }
     };
+    AddressBookMain.prototype.viewContactCounts = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var city, state, cityCount, stateCount;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.getInput("Enter the city to get contact count: ")];
+                    case 1:
+                        city = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter the state to get contact count: ")];
+                    case 2:
+                        state = _a.sent();
+                        cityCount = this.addressBookManager.getContactCountByCity(city);
+                        stateCount = this.addressBookManager.getContactCountByState(state);
+                        console.log("Number of contacts in ".concat(city, ": ").concat(cityCount));
+                        console.log("Number of contacts in ".concat(state, ": ").concat(stateCount));
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
     return AddressBookMain;
 }());
 var addressBookMain = new AddressBookMain();
 // addressBookMain.addNewAddressBook();
-addressBookMain.addNewContact();
+// addressBookMain.addNewContact();
 // addressBookMain.displayAllAddressBooks();
 // addressBookMain.searchPersonByCityOrState();
-addressBookMain.viewPersonsByCityOrState();
+// addressBookMain.viewPersonsByCityOrState();
+addressBookMain.viewContactCounts();
