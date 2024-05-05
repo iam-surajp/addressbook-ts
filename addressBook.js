@@ -110,106 +110,148 @@ var AddressBook = /** @class */ (function () {
     };
     return AddressBook;
 }());
+var AddressBookManager = /** @class */ (function () {
+    function AddressBookManager() {
+        this.addressBooks = new Map();
+    }
+    AddressBookManager.prototype.addAddressBook = function (name) {
+        if (!this.addressBooks.has(name)) {
+            this.addressBooks.set(name, new AddressBook());
+            console.log("Address book '".concat(name, "' created successfully."));
+        }
+        else {
+            console.log("Address book with name '".concat(name, "' already exists."));
+        }
+    };
+    AddressBookManager.prototype.getAddressBook = function (name) {
+        return this.addressBooks.get(name);
+    };
+    AddressBookManager.prototype.displayAllAddressBooks = function () {
+        console.log("All Address Books:");
+        this.addressBooks.forEach(function (_, name) {
+            console.log(name);
+        });
+    };
+    return AddressBookManager;
+}());
 var AddressBookMain = /** @class */ (function () {
     function AddressBookMain() {
-        this.addressBook = new AddressBook();
+        this.addressBookManager = new AddressBookManager();
     }
-    AddressBookMain.prototype.addNewContact = function () {
+    AddressBookMain.prototype.addNewAddressBook = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var firstName, lastName, address, city, state, zip, phoneNumber, email, newContact;
+            var name;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter first name: ")];
+                    case 0: return [4 /*yield*/, this.getInput("Enter the name for the new address book: ")];
                     case 1:
-                        firstName = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter last name: ")];
-                    case 2:
-                        lastName = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter address: ")];
-                    case 3:
-                        address = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter city: ")];
-                    case 4:
-                        city = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter state: ")];
-                    case 5:
-                        state = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter zip code: ")];
-                    case 6:
-                        zip = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter phone number: ")];
-                    case 7:
-                        phoneNumber = _a.sent();
-                        return [4 /*yield*/, this.getInput("Enter email: ")];
-                    case 8:
-                        email = _a.sent();
-                        newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
-                        this.addressBook.addContact(newContact);
-                        console.log("New contact added successfully!");
+                        name = _a.sent();
+                        this.addressBookManager.addAddressBook(name);
                         return [2 /*return*/];
                 }
             });
         });
     };
-    AddressBookMain.prototype.addMultipleContacts = function () {
+    AddressBookMain.prototype.addNewContact = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var addMore, userInput;
+            var name, addressBook, firstName, lastName, address, city, state, zip, phoneNumber, email, newContact;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        addMore = true;
-                        _a.label = 1;
+                    case 0: return [4 /*yield*/, this.getInput("Enter the name of the address book to add a contact to: ")];
                     case 1:
-                        if (!addMore) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.addNewContact()];
+                        name = _a.sent();
+                        addressBook = this.addressBookManager.getAddressBook(name);
+                        if (!addressBook) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.getInput("Enter first name: ")];
                     case 2:
-                        _a.sent();
-                        return [4 /*yield*/, this.getInput("Do you want to add another person? (yes/no): ")];
+                        firstName = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter last name: ")];
                     case 3:
-                        userInput = _a.sent();
-                        addMore = userInput.toLowerCase() === "yes";
-                        return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/];
+                        lastName = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter address: ")];
+                    case 4:
+                        address = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter city: ")];
+                    case 5:
+                        city = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter state: ")];
+                    case 6:
+                        state = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter zip code: ")];
+                    case 7:
+                        zip = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter phone number: ")];
+                    case 8:
+                        phoneNumber = _a.sent();
+                        return [4 /*yield*/, this.getInput("Enter email: ")];
+                    case 9:
+                        email = _a.sent();
+                        newContact = new Contact(firstName, lastName, address, city, state, zip, phoneNumber, email);
+                        addressBook.addContact(newContact);
+                        console.log("New contact added successfully!");
+                        return [3 /*break*/, 11];
+                    case 10:
+                        console.log("Address book with name '".concat(name, "' does not exist."));
+                        _a.label = 11;
+                    case 11: return [2 /*return*/];
                 }
             });
         });
     };
     AddressBookMain.prototype.editContact = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var firstName, lastName;
+            var name, addressBook, firstName, lastName;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter first name of contact to edit: ")];
+                    case 0: return [4 /*yield*/, this.getInput("Enter the name of the address book to edit a contact in: ")];
                     case 1:
+                        name = _a.sent();
+                        addressBook = this.addressBookManager.getAddressBook(name);
+                        if (!addressBook) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.getInput("Enter first name of contact to edit: ")];
+                    case 2:
                         firstName = _a.sent();
                         return [4 /*yield*/, this.getInput("Enter last name of contact to edit: ")];
-                    case 2:
+                    case 3:
                         lastName = _a.sent();
-                        this.addressBook.editContactByName(firstName, lastName);
-                        return [2 /*return*/];
+                        addressBook.editContactByName(firstName, lastName);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        console.log("Address book with name '".concat(name, "' does not exist."));
+                        _a.label = 5;
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
     AddressBookMain.prototype.deleteContact = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var firstName, lastName;
+            var name, addressBook, firstName, lastName;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter first name of contact to delete: ")];
+                    case 0: return [4 /*yield*/, this.getInput("Enter the name of the address book to delete a contact from: ")];
                     case 1:
+                        name = _a.sent();
+                        addressBook = this.addressBookManager.getAddressBook(name);
+                        if (!addressBook) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.getInput("Enter first name of contact to delete: ")];
+                    case 2:
                         firstName = _a.sent();
                         return [4 /*yield*/, this.getInput("Enter last name of contact to delete: ")];
-                    case 2:
+                    case 3:
                         lastName = _a.sent();
-                        this.addressBook.deleteContactByName(firstName, lastName);
-                        return [2 /*return*/];
+                        addressBook.deleteContactByName(firstName, lastName);
+                        return [3 /*break*/, 5];
+                    case 4:
+                        console.log("Address book with name '".concat(name, "' does not exist."));
+                        _a.label = 5;
+                    case 5: return [2 /*return*/];
                 }
             });
         });
     };
-    AddressBookMain.prototype.displayAddressBook = function () {
-        this.addressBook.displayContacts();
+    AddressBookMain.prototype.displayAllAddressBooks = function () {
+        this.addressBookManager.displayAllAddressBooks();
     };
     AddressBookMain.prototype.getInput = function (question) {
         return __awaiter(this, void 0, void 0, function () {
@@ -231,8 +273,6 @@ var AddressBookMain = /** @class */ (function () {
     return AddressBookMain;
 }());
 var addressBookMain = new AddressBookMain();
+// addressBookMain.addNewAddressBook();
 addressBookMain.addNewContact();
-// addressBookMain.addMultipleContacts();
-// addressBookMain.displayAddressBook();
-// addressBookMain.deleteContact();
-// addressBookMain.displayAddressBook();
+// addressBookMain.displayAllAddressBooks();
