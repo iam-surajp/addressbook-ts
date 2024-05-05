@@ -232,7 +232,7 @@ var AddressBookMain = /** @class */ (function () {
 }());
 var addressBookMain = new AddressBookMain();
 addressBookMain.addNewContact();
-addressBookMain.addMultipleContacts();
+// addressBookMain.addMultipleContacts();
 // addressBookMain.displayAddressBook();
 // addressBookMain.deleteContact();
 // addressBookMain.displayAddressBook();
