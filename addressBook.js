@@ -242,11 +242,10 @@ var AddressBookMain = /** @class */ (function () {
                         // await this.addNewAddressBook();
                         _a.sent();
                         // await this.addNewContact();
+                        this.displayAllAddressBooks();
                         return [4 /*yield*/, this.addMoreContacts()];
                     case 2:
-                        // await this.addNewContact();
                         _a.sent();
-                        this.displayAllAddressBooks();
                         return [4 /*yield*/, this.searchPersonByCityOrState()];
                     case 3:
                         _a.sent();
@@ -260,7 +259,7 @@ var AddressBookMain = /** @class */ (function () {
             var name;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.getInput("Enter the name for the new address book: ")];
+                    case 0: return [4 /*yield*/, this.getInput("Enter the name to add a new address book: ")];
                     case 1:
                         name = _a.sent();
                         this.addressBookManager.addAddressBook(name);
@@ -287,9 +286,7 @@ var AddressBookMain = /** @class */ (function () {
                     case 3:
                         if (true) return [3 /*break*/, 0];
                         _a.label = 4;
-                    case 4:
-                        console.log("\n");
-                        return [2 /*return*/];
+                    case 4: return [2 /*return*/];
                 }
             });
         });
@@ -347,7 +344,7 @@ var AddressBookMain = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.addNewContact()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, this.getInput("Do you want to add more contacts? (yes,no): ")];
+                        return [4 /*yield*/, this.getInput("\nDo you want to add more contacts? (yes,no): ")];
                     case 2:
                         response = _a.sent();
                         if (response !== 'yes') {

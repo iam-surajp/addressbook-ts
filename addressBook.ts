@@ -156,7 +156,7 @@ class AddressBookManager {
         } else {
             console.log(`Address book with name '${name}' already exists.`);
         }
-        console.log("\n");
+        // console.log("\n");
     }
 
     getAddressBook(name: string): AddressBook | undefined {
@@ -229,17 +229,17 @@ class AddressBookMain {
     async run(){
         // Main entry point to start interacting with the address book system
         // Perform operations like adding new address books, adding contacts, editing contacts, etc.
-        console.log("Welcome to Addressbook program\n");
+        console.log("\nWelcome to Addressbook program\n");
         // await this.addNewAddressBook();
         await this.addAddressBooks();
         // await this.addNewContact();
-        await this.addMoreContacts();
         this.displayAllAddressBooks();
+        await this.addMoreContacts();
         await this.searchPersonByCityOrState();
     }
 
     async addNewAddressBook(){
-        const name = await this.getInput("Enter the name for the new address book: ");
+        const name = await this.getInput("Enter the name to add a new address book: ");
         this.addressBookManager.addAddressBook(name);
     }
 
@@ -251,7 +251,7 @@ class AddressBookMain {
                 break;
             }
         } while (true);
-        console.log("\n");
+        // console.log("\n");
     }
     
 
@@ -278,7 +278,7 @@ class AddressBookMain {
     async addMoreContacts(){
         do{
         await this.addNewContact();
-        const response = await this.getInput("Do you want to add more contacts? (yes,no): ");
+        const response = await this.getInput("\nDo you want to add more contacts? (yes,no): ");
         if (response !== 'yes'){
             break;
         }
